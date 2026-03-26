@@ -1,0 +1,31 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-cluster
+  namespace: default
+  labels:
+    environment: production
+    app: temenos
+spec:
+  instances: 3
+  imageName: docker.io/harwops/cnpg-postgres-cronpg:17
+
+  # Uncomment when pulling from a private registry or private Docker Hub repo.
+  # imagePullSecrets:
+  #   - name: dockerhub-pull-secret
+
+  storage:
+    size: 20Gi
+
+  postgresql:
+    parameters:
+      # CNPG will merge these with the libraries it manages itself.
+      shared_preload_libraries: "pg_cron,pg_stat_kcache"
+      cron.database_name: "app"
+
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+      secret:
+        name: app-user
